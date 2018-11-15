@@ -1,135 +1,137 @@
 const style = ({
-    alias,
-    and,
-    not,
-    hasDefaultMember,
-    hasNamedMembers,
-    hasNamespaceMember,
-    hasNoMember,
-    isNodeModule,
-    isInstalledModule,
-    hasOnlyDefaultMember,
-    hasOnlyNamedMembers,
-    hasOnlyNamespaceMember,
-    dotSegmentCount,
-    isAbsoluteModule,
-    isRelativeModule,
-    moduleName,
-    name,
-    naturally,
-    unicode
+  alias,
+  and,
+  not,
+  hasDefaultMember,
+  hasNamedMembers,
+  hasNamespaceMember,
+  hasNoMember,
+  isNodeModule,
+  isInstalledModule,
+  hasOnlyDefaultMember,
+  hasOnlyNamedMembers,
+  hasOnlyNamespaceMember,
+  dotSegmentCount,
+  isAbsoluteModule,
+  isRelativeModule,
+  moduleName,
+  name,
+  naturally,
+  unicode
 }, file) => {
-    const isTypeImport = imported => imported.type === 'import-type';
+  const isTypeImport = imported => imported.type === 'import-type';
 
-    const sortModuleNames = [
-        (a, b) => 0 - dotSegmentCount(a, b),
-        moduleName(naturally)
-    ];
+  const sortModuleNames = [
+    (a, b) => 0 - dotSegmentCount(a, b),
+    moduleName(naturally)
+  ];
 
-    const sortModules = moduleType => [
-        // import * as bar from 'bar'
-        {
-            match: and(hasOnlyNamespaceMember, moduleType),
-            sort: sortModuleNames
-        },
+  const sortModules = moduleType => [
+    // import * as bar from 'bar'
+    {
+      match: and(hasOnlyNamespaceMember, moduleType),
+      sort: sortModuleNames
+    },
 
-        // import bar, * as baz from 'bar'
-        {
-            match: and(hasDefaultMember, hasNamespaceMember, moduleType),
-            sort: sortModuleNames
-        },
+    // import bar, * as baz from 'bar'
+    {
+      match: and(hasDefaultMember, hasNamespaceMember, moduleType),
+      sort: sortModuleNames
+    },
 
-        // import bar from 'bar'
-        {
-            match: and(hasOnlyDefaultMember, moduleType),
-            sort: sortModuleNames
-        },
+    // import bar from 'bar'
+    {
+      match: and(hasOnlyDefaultMember, moduleType),
+      sort: sortModuleNames
+    },
 
-        // import bar, { baz } from 'bar'
-        {
-            match: and(hasDefaultMember, hasNamedMembers, moduleType),
-            sort: sortModuleNames,
-            sortNamedMembers: name(naturally)
-        },
+    // import bar, { baz } from 'bar'
+    {
+      match: and(hasDefaultMember, hasNamedMembers, moduleType),
+      sort: sortModuleNames,
+      sortNamedMembers: name(naturally)
+    },
 
-        // import { bar } from 'bar'
-        {
-            match: and(not(isTypeImport), hasOnlyNamedMembers, moduleType),
-            sort: sortModuleNames,
-            sortNamedMembers: name(naturally)
-        },
+    // import { bar } from 'bar'
+    {
+      match: and(not(isTypeImport), hasOnlyNamedMembers, moduleType),
+      sort: sortModuleNames,
+      sortNamedMembers: name(naturally)
+    },
 
-        // import type { Bar, Baz } from 'bar'
-        {
-            match: and(isTypeImport, hasOnlyNamedMembers, moduleType),
-            sort: sortModuleNames,
-            sortNamedMembers: name(naturally)
-        }
-    ];
+    // import type { Bar, Baz } from 'bar'
+    {
+      match: and(isTypeImport, hasOnlyNamedMembers, moduleType),
+      sort: sortModuleNames,
+      sortNamedMembers: name(naturally)
+    }
+  ];
 
-    const isResolved = imported =>
-        imported.moduleName.startsWith('actions/')
-        || imported.moduleName.startsWith('constants/')
-        || imported.moduleName.startsWith('creators/')
-        || imported.moduleName.startsWith('middleware/')
-        || imported.moduleName.startsWith('reducers/')
-        || imported.moduleName.startsWith('utilities/');
+  const isResolved = imported =>
+    imported.moduleName.startsWith('actions/')
+    || imported.moduleName.startsWith('constants/')
+    || imported.moduleName.startsWith('creators/')
+    || imported.moduleName.startsWith('middleware/')
+    || imported.moduleName.startsWith('reducers/')
+    || imported.moduleName.startsWith('utilities/');
 
-    const isResolvedComponent = imported => imported.moduleName.startsWith('components/');
+  const isResolvedComponent = imported => imported.moduleName.startsWith('components/');
 
-    return [
-        {
-            match: isNodeModule,
-            sort: moduleName(naturally),
-            sortNamedMembers: alias(unicode)
-        },
+  return [
+    {
+      match: isNodeModule,
+      sort: moduleName(naturally),
+      sortNamedMembers: alias(unicode)
+    },
 
-        { separator: true },
+    { separator: true },
 
-        {
-            match: isInstalledModule(file),
-            sort: moduleName(naturally),
-            sortNamedMembers: alias(unicode)
-        },
+    {
+      match: isInstalledModule(file),
+      sort: moduleName(naturally),
+      sortNamedMembers: alias(unicode)
+    },
 
-        { separator: true },
+    { separator: true },
 
-        {
-            match: isResolved,
-            sort: moduleName(naturally),
-            sortNamedMembers: alias(unicode)
-        },
+    {
+      match: isResolved,
+      sort: moduleName(naturally),
+      sortNamedMembers: alias(unicode)
+    },
 
-        ...sortModules(isAbsoluteModule),
+    { separator: true },
 
-        { separator: true },
+    ...sortModules(and(isAbsoluteModule, not(isResolved), not(isResolvedComponent))),
 
-        ...sortModules(isRelativeModule),
+    { separator: true },
 
-        { separator: true },
+    ...sortModules(isRelativeModule),
 
-        {
-            match: isResolvedComponent,
-            sort: moduleName(naturally),
-            sortNamedMembers: alias(unicode)
-        },
+    { separator: true },
 
-        { separator: true },
+    {
+      match: isResolvedComponent,
+      sort: moduleName(naturally),
+      sortNamedMembers: alias(unicode)
+    },
 
-        // import 'bar'
-        {
-            match: and(hasNoMember, isAbsoluteModule)
-        },
+    { separator: true },
 
-        { separator: true },
+    // import 'bar'
+    {
+      match: and(hasNoMember, isAbsoluteModule)
+    },
 
-        // import './bar'
-        {
-            match: and(hasNoMember, isRelativeModule)
-        },
+    { separator: true },
 
-        { separator: true }
-    ];
+    // import './bar'
+    {
+      match: and(hasNoMember, isRelativeModule)
+    },
+
+    { separator: true }
+  ];
 };
 
 module.exports = style;
