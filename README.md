@@ -36,6 +36,9 @@ import type { Bar, Baz } from './bar';
 import * as bar from './../bar';
 import bar, * as baz from './../bar';
 
+// resolved components
+import Foo from 'components/foo';
+
 // Absolute modules with no members
 import 'foo';
 
