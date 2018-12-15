@@ -44,4 +44,7 @@ import 'foo';
 
 // Relative modules with no members
 import './bar';
+
+// css modules
+import style from './styles.module.less'
 ```
