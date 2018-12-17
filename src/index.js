@@ -77,7 +77,7 @@ const style = ({
 
   const isResolvedComponent = imported => imported.moduleName.startsWith('components/');
 
-  const isCssModule = imported => imported.moduleName.startsWith('./styles.module');
+  const isCssFile = imported => imported.moduleName.match(/(\.css|\.less)$/);
 
   return [
     {
@@ -108,7 +108,7 @@ const style = ({
 
     { separator: true },
 
-    ...sortModules(and(isRelativeModule, not(isCssModule))),
+    ...sortModules(and(isRelativeModule, not(isCssFile))),
 
     { separator: true },
 
@@ -136,7 +136,7 @@ const style = ({
 
     // css modules
     {
-      match: isCssModule,
+      match: isCssFile,
     },
 
     { separator: true }
