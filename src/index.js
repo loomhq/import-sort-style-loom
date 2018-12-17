@@ -77,6 +77,8 @@ const style = ({
 
   const isResolvedComponent = imported => imported.moduleName.startsWith('components/');
 
+  const isCssFile = imported => imported.moduleName.match(/(\.css|\.less)$/);
+
   return [
     {
       match: isNodeModule,
@@ -106,7 +108,7 @@ const style = ({
 
     { separator: true },
 
-    ...sortModules(isRelativeModule),
+    ...sortModules(and(isRelativeModule, not(isCssFile))),
 
     { separator: true },
 
@@ -128,6 +130,13 @@ const style = ({
     // import './bar'
     {
       match: and(hasNoMember, isRelativeModule)
+    },
+
+    { separator: true },
+
+    // css modules
+    {
+      match: isCssFile,
     },
 
     { separator: true }
