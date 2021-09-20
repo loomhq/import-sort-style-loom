@@ -72,6 +72,7 @@ const style = ({
     || imported.moduleName.startsWith('constants/')
     || imported.moduleName.startsWith('creators/')
     || imported.moduleName.startsWith('middleware/')
+    || imported.moduleName.startsWith('selectors/')
     || imported.moduleName.startsWith('reducers/')
     || imported.moduleName.startsWith('utilities/');
 

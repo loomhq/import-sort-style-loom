@@ -1,6 +1,6 @@
 {
   "name": "import-sort-style-loom",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "src/index.js",
   "author": "Loom <team@loom.com>",
   "license": "MIT",
